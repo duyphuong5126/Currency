@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">Currency</string>
+    <string name="input_your_amount">Input your amount</string>
+    <string name="currency">Currency</string>
+</resources>
