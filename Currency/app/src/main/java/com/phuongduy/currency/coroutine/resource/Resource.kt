@@ -38,6 +38,13 @@ sealed class Resource<T : Any> {
         return this
     }
 
+    suspend fun doOnError(function: suspend (Throwable) -> Unit): Resource<T> {
+        if (this is Error) {
+            function(this.error)
+        }
+        return this
+    }
+
     companion object {
         fun <T : Any> success(data: T): Success<T> {
             return Success(data)

@@ -78,6 +78,10 @@ class MainViewModelImplTest {
                     assertEquals("Japanese Yen", it[1].name)
                     true
                 }
+
+            TestObserver.test(viewModelImpl.isLoading)
+                .assertHasValue()
+                .assertValueHistory(false)
         }
     }
 
@@ -91,12 +95,16 @@ class MainViewModelImplTest {
 
             TestObserver.test(viewModelImpl.currencyList)
                 .assertNoValue()
+
+            TestObserver.test(viewModelImpl.isLoading)
+                .assertHasValue()
+                .assertValueHistory(false)
         }
     }
 
     @Test
     fun `onDataInputted, blank currency code`() {
-        viewModelImpl.onDataInputted(CurrencyUiModel("", ""), 1000)
+        viewModelImpl.onDataInputted(CurrencyUiModel("", ""), "1000")
 
         TestObserver.test(viewModelImpl.isRefreshNeeded)
             .assertHasValue()
@@ -105,7 +113,16 @@ class MainViewModelImplTest {
 
     @Test
     fun `onDataInputted, zero amount`() {
-        viewModelImpl.onDataInputted(CurrencyUiModel("USD", "United States Dollar"), 0)
+        viewModelImpl.onDataInputted(CurrencyUiModel("USD", "United States Dollar"), "0")
+
+        TestObserver.test(viewModelImpl.isRefreshNeeded)
+            .assertHasValue()
+            .assertValue(false)
+    }
+
+    @Test
+    fun `onDataInputted, empty amount text`() {
+        viewModelImpl.onDataInputted(CurrencyUiModel("USD", "United States Dollar"), "")
 
         TestObserver.test(viewModelImpl.isRefreshNeeded)
             .assertHasValue()
@@ -114,7 +131,7 @@ class MainViewModelImplTest {
 
     @Test
     fun `onDataInputted, non blank currency code and non-zero amount`() {
-        viewModelImpl.onDataInputted(CurrencyUiModel("USD", "United States Dollar"), 1000)
+        viewModelImpl.onDataInputted(CurrencyUiModel("USD", "United States Dollar"), "1000")
 
         TestObserver.test(viewModelImpl.isRefreshNeeded)
             .assertHasValue()
@@ -139,7 +156,7 @@ class MainViewModelImplTest {
     @Test
     fun `load, blank currency code`() {
         runBlocking {
-            viewModelImpl.onDataInputted(CurrencyUiModel("", ""), 1000)
+            viewModelImpl.onDataInputted(CurrencyUiModel("", ""), "1000")
 
             val resultList = (viewModelImpl.load(0) as Resource.Success<List<ExchangeUiModel>>).data
 
@@ -150,7 +167,7 @@ class MainViewModelImplTest {
     @Test
     fun `load, zero amount`() {
         runBlocking {
-            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), 0)
+            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), "0")
 
             val resultList = (viewModelImpl.load(0) as Resource.Success<List<ExchangeUiModel>>).data
 
@@ -165,7 +182,7 @@ class MainViewModelImplTest {
             val error = SocketTimeoutException()
             whenever(getExchangeRateUseCaseListUseCase.execute(0, PAGE_SIZE, selectedCurrency))
                 .thenReturn(error(error))
-            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), 1000)
+            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), "1000")
 
             val errorResult = (viewModelImpl.load(0) as Resource.Error<List<ExchangeUiModel>>).error
 
@@ -189,7 +206,7 @@ class MainViewModelImplTest {
             whenever(getExchangeRateUseCase.execute(selectedCurrency))
                 .thenReturn(error(localError))
 
-            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), 1000)
+            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), "1000")
 
             val errorResult = (viewModelImpl.load(0) as Resource.Error<List<ExchangeUiModel>>).error
 
@@ -214,7 +231,7 @@ class MainViewModelImplTest {
             whenever(getExchangeRateUseCase.execute(selectedCurrency))
                 .thenReturn(success(selectedExchangeRate))
 
-            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), 1000)
+            viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), "1000")
 
             val resultList = (viewModelImpl.load(0) as Resource.Success<List<ExchangeUiModel>>).data
 

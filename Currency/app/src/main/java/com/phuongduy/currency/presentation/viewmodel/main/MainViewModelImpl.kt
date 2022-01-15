@@ -17,6 +17,7 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import timber.log.Timber
+import java.lang.NumberFormatException
 import java.text.DecimalFormat
 import javax.inject.Inject
 
@@ -34,6 +35,9 @@ class MainViewModelImpl @Inject constructor(
     private val _isRefreshNeeded = MutableLiveData<Boolean>()
     override val isRefreshNeeded: LiveData<Boolean> = _isRefreshNeeded
 
+    private val _loading = MutableLiveData<Boolean>()
+    override val isLoading: LiveData<Boolean> = _loading
+
     private var selectedCurrency = ""
     private var selectedAmount = 0
 
@@ -43,6 +47,7 @@ class MainViewModelImpl @Inject constructor(
     private val mainScope = CoroutineScope(mainDisPatcher)
 
     override fun setUp() {
+        _loading.value = true
         ioScope.launch {
             getSupportedCurrenciesUseCase.execute()
                 .doOnSuccess {
@@ -51,7 +56,10 @@ class MainViewModelImpl @Inject constructor(
                     }
                     mainScope.launch {
                         _currencyList.value = currencyUiModelList
+                        _loading.value = false
                     }
+                }.doOnError {
+                    _loading.value = false
                 }
         }
     }
@@ -66,9 +74,13 @@ class MainViewModelImpl @Inject constructor(
         }
     }
 
-    override fun onDataInputted(selectedCurrencyUiModel: CurrencyUiModel, amount: Int) {
+    override fun onDataInputted(selectedCurrencyUiModel: CurrencyUiModel, amountText: String) {
         selectedCurrency = selectedCurrencyUiModel.code
-        selectedAmount = amount
+        selectedAmount = try {
+            amountText.toInt()
+        } catch (error: NumberFormatException) {
+            0
+        }
         checkAndRefreshList()
     }
 

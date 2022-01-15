@@ -1,6 +1,8 @@
 package com.phuongduy.currency
 
 import android.os.Bundle
+import android.view.View.GONE
+import android.view.View.VISIBLE
 import android.view.inputmethod.EditorInfo
 import android.widget.ArrayAdapter
 import androidx.appcompat.app.AppCompatActivity
@@ -49,10 +51,8 @@ class MainActivity : AppCompatActivity() {
             viewBinding.currencySelector.setAdapter(adapter)
             viewBinding.currencySelector.setOnItemClickListener { parent, _, position, _ ->
                 (parent?.getItemAtPosition(position) as? CurrencyUiModel)?.let { currencyUiModel ->
-                    val amountText = viewBinding.inputAmount.text.toString()
-                    if (amountText.isNotBlank()) {
-                        viewModel.onDataInputted(currencyUiModel, amountText.toInt())
-                    }
+                    viewModel
+                        .onDataInputted(currencyUiModel, viewBinding.inputAmount.text.toString())
                 }
             }
         })
@@ -71,6 +71,10 @@ class MainActivity : AppCompatActivity() {
                     }.flow.collectLatest(exchangeAdapter::submitData)
                 }
             }
+        })
+
+        viewModel.isLoading.observe(this, { isLoading ->
+            viewBinding.loadingLayout.visibility = if (isLoading) VISIBLE else GONE
         })
 
         viewBinding.inputAmount.setOnEditorActionListener { _, actionId, _ ->
