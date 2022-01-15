@@ -11,6 +11,7 @@ import com.phuongduy.currency.domain.usecase.GetExchangeRateListUseCase
 import com.phuongduy.currency.domain.usecase.GetSupportedCurrenciesUseCase
 import com.phuongduy.currency.presentation.uimodel.CurrencyUiModel
 import com.phuongduy.currency.presentation.uimodel.ExchangeUiModel
+import com.phuongduy.currency.presentation.utils.MoneyFormatter
 import com.phuongduy.currency.presentation.viewmodel.main.MainViewModel.Companion.PAGE_SIZE
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -18,13 +19,13 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import timber.log.Timber
 import java.lang.NumberFormatException
-import java.text.DecimalFormat
 import javax.inject.Inject
 
 class MainViewModelImpl @Inject constructor(
     private val getSupportedCurrenciesUseCase: GetSupportedCurrenciesUseCase,
     private val getExchangeRateListUseCase: GetExchangeRateListUseCase,
     private val getExchangeRateUseCase: GetExchangeRateUseCase,
+    private val moneyFormatter: MoneyFormatter,
     @IODispatcher private val ioDisPatcher: CoroutineDispatcher,
     @MainDispatcher private val mainDisPatcher: CoroutineDispatcher
 ) : ViewModel(), MainViewModel {
@@ -40,8 +41,6 @@ class MainViewModelImpl @Inject constructor(
 
     private var selectedCurrency = ""
     private var selectedAmount = 0
-
-    private val currencyFormat = DecimalFormat("#,###.###")
 
     private val ioScope = CoroutineScope(ioDisPatcher)
     private val mainScope = CoroutineScope(mainDisPatcher)
@@ -84,8 +83,12 @@ class MainViewModelImpl @Inject constructor(
         checkAndRefreshList()
     }
 
-    override fun onAmountInputted(amount: Int) {
-        selectedAmount = amount
+    override fun onAmountInputted(amountText: String) {
+        selectedAmount = try {
+            amountText.toInt()
+        } catch (error: NumberFormatException) {
+            0
+        }
         checkAndRefreshList()
     }
 
@@ -98,14 +101,14 @@ class MainViewModelImpl @Inject constructor(
                 .zipWith {
                     getExchangeRateUseCase.execute(selectedCurrency)
                 }
-                .map {
-                    it.first.map { exchangeRate ->
+                .map { (exchangeRateList, selectedExchangeRate) ->
+                    exchangeRateList.map { exchangeRate ->
                         val conversionRate =
-                            exchangeRate.fromSourceExchangeRate / it.second.fromSourceExchangeRate
+                            exchangeRate.fromSourceExchangeRate / selectedExchangeRate.fromSourceExchangeRate
                         val conversion = conversionRate * selectedAmount
                         ExchangeUiModel(
                             exchangeRate.currencyCode,
-                            currencyFormat.format(conversion)
+                            moneyFormatter.format(conversion)
                         )
                     }
                 }

@@ -13,7 +13,7 @@ interface MainViewModel : ExchangePagingDataSource {
 
     fun onDataInputted(selectedCurrencyUiModel: CurrencyUiModel, amountText: String)
 
-    fun onAmountInputted(amount: Int)
+    fun onAmountInputted(amountText: String)
 
     companion object {
         const val PAGE_SIZE = 25

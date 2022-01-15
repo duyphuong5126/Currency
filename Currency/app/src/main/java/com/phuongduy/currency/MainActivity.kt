@@ -79,7 +79,7 @@ class MainActivity : AppCompatActivity() {
 
         viewBinding.inputAmount.setOnEditorActionListener { _, actionId, _ ->
             if (actionId == EditorInfo.IME_ACTION_DONE) {
-                viewBinding.inputAmount.text.toString().toInt().let(viewModel::onAmountInputted)
+                viewBinding.inputAmount.text.toString().let(viewModel::onAmountInputted)
             }
             true
         }

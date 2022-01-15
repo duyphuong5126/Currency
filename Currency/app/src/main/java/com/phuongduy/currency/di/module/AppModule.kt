@@ -7,6 +7,8 @@ import com.phuongduy.currency.data.remote.CurrencyRemoteDataSource
 import com.phuongduy.currency.data.remote.CurrencyRemoteDataSourceImpl
 import com.phuongduy.currency.domain.CurrencyRepository
 import com.phuongduy.currency.domain.usecase.*
+import com.phuongduy.currency.presentation.utils.MoneyFormatter
+import com.phuongduy.currency.presentation.utils.MoneyFormatterImpl
 import dagger.Binds
 import dagger.Module
 
@@ -29,4 +31,7 @@ interface AppModule {
 
     @Binds
     fun bindsGetExchangeRateUseCase(impl: GetExchangeRateUseCaseImpl): GetExchangeRateUseCase
+
+    @Binds
+    fun bindsMoneyFormatter(impl: MoneyFormatterImpl): MoneyFormatter
 }

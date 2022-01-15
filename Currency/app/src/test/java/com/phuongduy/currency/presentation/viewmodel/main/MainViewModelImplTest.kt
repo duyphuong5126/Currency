@@ -12,6 +12,7 @@ import com.phuongduy.currency.domain.usecase.GetExchangeRateListUseCase
 import com.phuongduy.currency.domain.usecase.GetSupportedCurrenciesUseCase
 import com.phuongduy.currency.presentation.uimodel.CurrencyUiModel
 import com.phuongduy.currency.presentation.uimodel.ExchangeUiModel
+import com.phuongduy.currency.presentation.utils.MoneyFormatter
 import com.phuongduy.currency.presentation.viewmodel.main.MainViewModel.Companion.PAGE_SIZE
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Runnable
@@ -24,6 +25,8 @@ import org.mockito.Mockito.mock
 import org.mockito.Mockito.never
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.anyString
+import org.mockito.Mockito.anyInt
+import org.mockito.Mockito.anyDouble
 import org.mockito.Mockito.`when` as whenever
 import java.net.SocketTimeoutException
 import java.sql.SQLException
@@ -33,6 +36,7 @@ class MainViewModelImplTest {
     private val getSupportedCurrenciesUseCase = mock(GetSupportedCurrenciesUseCase::class.java)
     private val getExchangeRateUseCaseListUseCase = mock(GetExchangeRateListUseCase::class.java)
     private val getExchangeRateUseCase = mock(GetExchangeRateUseCase::class.java)
+    private val moneyFormatter = mock(MoneyFormatter::class.java)
 
     private val ioDispatcher = object : CoroutineDispatcher() {
         override fun dispatch(context: CoroutineContext, block: Runnable) {
@@ -50,6 +54,7 @@ class MainViewModelImplTest {
         getSupportedCurrenciesUseCase,
         getExchangeRateUseCaseListUseCase,
         getExchangeRateUseCase,
+        moneyFormatter,
         ioDispatcher,
         mainDispatcher
     )
@@ -140,13 +145,19 @@ class MainViewModelImplTest {
 
     @Test
     fun onAmountInputted() {
-        viewModelImpl.onAmountInputted(0)
+        viewModelImpl.onAmountInputted("")
 
         TestObserver.test(viewModelImpl.isRefreshNeeded)
             .assertHasValue()
             .assertValue(false)
 
-        viewModelImpl.onAmountInputted(0)
+        viewModelImpl.onAmountInputted("0")
+
+        TestObserver.test(viewModelImpl.isRefreshNeeded)
+            .assertHasValue()
+            .assertValue(false)
+
+        viewModelImpl.onAmountInputted("10")
 
         TestObserver.test(viewModelImpl.isRefreshNeeded)
             .assertHasValue()
@@ -161,6 +172,10 @@ class MainViewModelImplTest {
             val resultList = (viewModelImpl.load(0) as Resource.Success<List<ExchangeUiModel>>).data
 
             assertTrue(resultList.isEmpty())
+            verify(getExchangeRateUseCaseListUseCase, never())
+                .execute(anyInt(), anyInt(), anyString())
+            verify(getExchangeRateUseCase, never()).execute(anyString())
+            verify(moneyFormatter, never()).format(anyDouble())
         }
     }
 
@@ -172,6 +187,11 @@ class MainViewModelImplTest {
             val resultList = (viewModelImpl.load(0) as Resource.Success<List<ExchangeUiModel>>).data
 
             assertTrue(resultList.isEmpty())
+
+            verify(getExchangeRateUseCaseListUseCase, never())
+                .execute(anyInt(), anyInt(), anyString())
+            verify(getExchangeRateUseCase, never()).execute(anyString())
+            verify(moneyFormatter, never()).format(anyDouble())
         }
     }
 
@@ -190,6 +210,7 @@ class MainViewModelImplTest {
 
             verify(getExchangeRateUseCaseListUseCase).execute(0, PAGE_SIZE, selectedCurrency)
             verify(getExchangeRateUseCase, never()).execute(anyString())
+            verify(moneyFormatter, never()).format(anyDouble())
         }
     }
 
@@ -214,6 +235,7 @@ class MainViewModelImplTest {
 
             verify(getExchangeRateUseCaseListUseCase).execute(0, PAGE_SIZE, selectedCurrency)
             verify(getExchangeRateUseCase).execute(selectedCurrency)
+            verify(moneyFormatter, never()).format(anyDouble())
         }
     }
 
@@ -231,6 +253,9 @@ class MainViewModelImplTest {
             whenever(getExchangeRateUseCase.execute(selectedCurrency))
                 .thenReturn(success(selectedExchangeRate))
 
+            val jpyToAudExchange = (1.3 / 114.3) * 1000
+            whenever(moneyFormatter.format(jpyToAudExchange)).thenReturn("11.374")
+
             viewModelImpl.onDataInputted(CurrencyUiModel("JPY", "Japanese Yen"), "1000")
 
             val resultList = (viewModelImpl.load(0) as Resource.Success<List<ExchangeUiModel>>).data
@@ -241,6 +266,7 @@ class MainViewModelImplTest {
 
             verify(getExchangeRateUseCaseListUseCase).execute(0, PAGE_SIZE, selectedCurrency)
             verify(getExchangeRateUseCase).execute(selectedCurrency)
+            verify(moneyFormatter).format(jpyToAudExchange)
         }
     }
 }
