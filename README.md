@@ -10,8 +10,11 @@ Feature
 * Search for a currency by typing on the currency edit text.
 * Select a currency by tapping an item of the dropdown list on the currency edit text.
 * Enter the amount of money.
-* Converse the inputted amount from the selected currency to all available currencies except the selected currency.
+* Converse the inputted amount from the selected currency to all available currencies except that currency.
 * Display the conversions on a vertical list.
+* Offline execution:
+    * The app needs an internet connection at least once to get the currency list. After that, the currency list can be used offline.
+    * The conversion feature needs connection at least once to perform. After that, you can use it offline.
 
 ## Architecture & Techniques
 * Architecture: Clean Architecture
