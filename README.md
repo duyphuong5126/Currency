@@ -55,6 +55,11 @@ Choose "Run 'Tests in 'currency''" to run all test cases.
 Choose "Run 'Tests in 'currency'' with coverage" to run all test cases and see coverage report.
 ```
 
+To use a different `currencylayer` account.
+```
+Change the value of the config "CURRENCY_LAYER_ACCESS_KEY" in the app/build.gradle
+```
+
 ## Requisites
 * This app requires Android 7.0 (Api 24) or newer
 * You must turn on your internet connection at least once to load data from the server
