@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import com.phuongduy.currency.data.remote.apiservice.ApiConstants.BASE_URL
 import com.phuongduy.currency.data.remote.apiservice.ApiConstants.CONNECT_TIME_OUT
 import com.phuongduy.currency.data.remote.apiservice.ApiConstants.NETWORK_CACHE_MAX_AGE
+import com.phuongduy.currency.data.remote.apiservice.ApiConstants.NETWORK_CACHE_MAX_STALE
 import com.phuongduy.currency.data.remote.apiservice.ApiConstants.NETWORK_CACHE_SIZE
 import com.phuongduy.currency.data.remote.apiservice.ApiConstants.READ_TIME_OUT
 import com.phuongduy.currency.data.remote.apiservice.CurrencyApiService
@@ -30,7 +31,7 @@ class NetworkModule {
         }
         val cacheControl = CacheControl.Builder()
             .maxAge(NETWORK_CACHE_MAX_AGE, TimeUnit.HOURS)
-            .maxStale(NETWORK_CACHE_MAX_AGE, TimeUnit.HOURS)
+            .maxStale(NETWORK_CACHE_MAX_STALE, TimeUnit.HOURS)
             .build()
 
         val cacheInterceptor = Interceptor {
