@@ -57,7 +57,7 @@ Choose "Run 'Tests in 'currency'' with coverage" to run all test cases and see c
 
 To use a different `currencylayer` account.
 ```
-Change the value of the config "CURRENCY_LAYER_ACCESS_KEY" in the app/build.gradle
+Replace the value of the config "CURRENCY_LAYER_ACCESS_KEY" in the "app/build.gradle" with a new access key.
 ```
 
 ## Requisites
