@@ -40,7 +40,6 @@ class CurrencyRemoteDataSourceImpl @Inject constructor(
         val exchangeRatesObject = jsonObject.getJSONObject("quotes")
         val source = jsonObject.getString("source")
         val resultList = arrayListOf<ExchangeRate>()
-        resultList.add(ExchangeRate(source, source, 1.0))
         exchangeRatesObject.keys().asSequence().toList().forEach { key ->
             val exchangeRate = exchangeRatesObject.getDouble(key)
             val targetCurrencyCode = key.replace(source, "")
@@ -52,6 +51,8 @@ class CurrencyRemoteDataSourceImpl @Inject constructor(
                         fromSourceExchangeRate = exchangeRate
                     )
                 )
+            } else {
+                resultList.add(ExchangeRate(source, source, 1.0))
             }
         }
         resultList
