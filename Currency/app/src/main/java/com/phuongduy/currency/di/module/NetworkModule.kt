@@ -18,7 +18,6 @@ import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
-import timber.log.Timber
 import java.util.concurrent.TimeUnit
 
 
@@ -35,7 +34,6 @@ class NetworkModule {
             .build()
 
         val cacheInterceptor = Interceptor {
-            Timber.d("OkHttp>>> cache interceptor")
             it.request()
                 .newBuilder()
                 .header("Cache-Control", cacheControl.toString())
