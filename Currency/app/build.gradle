@@ -57,9 +57,9 @@ dependencies {
     implementation "android.arch.lifecycle:viewmodel:$room"
     annotationProcessor "android.arch.persistence.room:compiler:$room"
     annotationProcessor "androidx.room:room-compiler:$room"
-    implementation "androidx.room:room-runtime:2.4.0"
-    kapt "androidx.room:room-compiler:2.4.0"
-    implementation "androidx.room:room-ktx:2.4.0"
+    implementation "androidx.room:room-runtime:2.4.1"
+    kapt "androidx.room:room-compiler:2.4.1"
+    implementation "androidx.room:room-ktx:2.4.1"
 
     implementation "com.google.dagger:dagger-android-support:$dagger"
     implementation "com.google.dagger:dagger:$dagger"
